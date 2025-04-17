@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - Journey Connect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .login-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .user-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .user-info h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>个人中心</h1>
+        </div>
+
+        <div id="loginSection" class="login-section">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="请输入密码">
+            </div>
+            <button class="btn" onclick="login()">登录</button>
+        </div>
+
+        <div id="userInfo" class="user-info">
+            <h2>个人信息</h2>
+            <div class="info-item">
+                <div class="info-label">用户名</div>
+                <div class="info-value" id="displayUsername"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">邮箱</div>
+                <div class="info-value" id="displayEmail"></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">注册时间</div>
+                <div class="info-value" id="displayRegisterTime"></div>
+            </div>
+            <button class="btn" onclick="logout()" style="margin-top: 20px;">退出登录</button>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <a href="主界面.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>首页</span>
+        </a>
+        <a href="约旅伴.html" class="nav-item">
+            <span class="nav-icon">👥</span>
+            <span>约旅伴</span>
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span>消息</span>
+        </a>
+        <a href="个人界面.html" class="nav-item active">
+            <span class="nav-icon">👤</span>
+            <span>个人</span>
+        </a>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // 这里应该添加实际的登录验证逻辑
+            // 为了演示，我们使用简单的验证
+            if (username && password) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'block';
+                
+                // 显示用户信息
+                document.getElementById('displayUsername').textContent = username;
+                document.getElementById('displayEmail').textContent = username + '@example.com';
+                document.getElementById('displayRegisterTime').textContent = new Date().toLocaleDateString();
+            } else {
+                alert('请输入用户名和密码');
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+    </script>
+</body>
+</html> 
