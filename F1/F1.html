@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 - Journey Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 10px solid #333;
+        }
+
+        .phone-content {
+            width: 100%;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        /* 图片轮播区域 */
+        .image-slider {
+            height: 40%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slider-container {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .slider-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+
+        .slider-dot.active {
+            background: white;
+        }
+
+        /* 文字叙述区域 */
+        .content-section {
+            padding: 20px;
+        }
+
+        .post-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background-color: #f0f0f0;
+            color: #666;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .post-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* 评论区 */
+        .comments-section {
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .comment-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .comment {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* 底部固定栏 */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #333;
+            margin-right: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .action-count {
+            font-size: 12px;
+            margin-left: 5px;
+            color: #666;
+        }
+
+        .action-button.liked {
+            color: #ff2442;
+        }
+
+        .join-button {
+            background-color: #cccccc;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .join-button:hover {
+            background-color: #bbbbbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-content">
+            <!-- 返回按钮 -->
+            <div class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+
+            <!-- 图片轮播区域 -->
+            <div class="image-slider">
+                <div class="slide-counter">1/3</div>
+                <div class="slider-container">
+                    <div class="slide">
+                        <img src="F1.jpg" alt="F1上海站1">
+                    </div>
+                    <div class="slide">
+                        <img src="F1-2.jpg" alt="F1上海站2">
+                    </div>
+                    <div class="slide">
+                        <img src="F1-3.jpg" alt="F1上海站3">
+                    </div>
+                </div>
+                <div class="slider-controls">
+                    <div class="slider-dot active"></div>
+                    <div class="slider-dot"></div>
+                    <div class="slider-dot"></div>
+                </div>
+            </div>
+
+            <!-- 文字叙述区域 -->
+            <div class="content-section">
+                <h1 class="post-title">F1上海站正赛蹲搭子</h1>
+                <div class="post-tags">
+                    <span class="tag">#F1</span>
+                    <span class="tag">#赛车</span>
+                    <span class="tag">#上海</span>
+                </div>
+                <div class="post-description">
+                    F1上海站正赛即将开始，想找几个志同道合的车迷一起观看比赛。我是一名F1忠实粉丝，特别喜欢维斯塔潘和汉密尔顿。
+
+                    比赛当天我们可以一起讨论比赛策略，分享对车手和车队的看法，一起为喜欢的车手加油。如果你也是F1爱好者，或者对赛车运动感兴趣，欢迎加入我们！
+
+                    我们可以提前在赛场外集合，一起入场，共同体验这场速度与激情的盛宴。期待与你一起见证F1上海站的精彩比赛！
+                </div>
+            </div>
+
+            <!-- 评论区 -->
+            <div class="comments-section">
+                <h2 class="comment-title">评论</h2>
+                <div class="comment">
+                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-author">张三</div>
+                        <div class="comment-text">我也想去，可以一起吗？</div>
+                    </div>
+                </div>
+                <div class="comment">
+                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-author">李四</div>
+                        <div class="comment-text">我是汉密尔顿的粉丝，一起为梅赛德斯加油！</div>
+                    </div>
+                </div>
+                <div class="comment">
+                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="comment-avatar">
+                    <div class="comment-content">
+                        <div class="comment-author">王五</div>
+                        <div class="comment-text">你们买好票了吗？哪个看台？</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部固定栏 -->
+        <div class="bottom-bar">
+            <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="user-avatar">
+            <button class="action-button">
+                <i class="far fa-comment"></i>
+                <span class="action-count">3</span>
+            </button>
+            <button class="action-button">
+                <i class="far fa-heart"></i>
+                <span class="action-count">42</span>
+            </button>
+            <button class="join-button">JOIN!</button>
+        </div>
+    </div>
+
+    <script>
+        // 图片轮播功能
+        const slider = document.querySelector('.slider-container');
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        let currentSlide = 0;
+
+        function updateSlide() {
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            document.querySelector('.slide-counter').textContent = `${currentSlide + 1}/${slides.length}`;
+            
+            // 更新指示点状态
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // 添加指示点点击事件
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateSlide();
+            });
+        });
+
+        // 添加触摸事件处理
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        slider.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        slider.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) { // 滑动距离阈值
+                if (diff > 0 && currentSlide < slides.length - 1) {
+                    // 向左滑动
+                    currentSlide++;
+                } else if (diff < 0 && currentSlide > 0) {
+                    // 向右滑动
+                    currentSlide--;
+                }
+                updateSlide();
+            }
+        }
+
+        // 点击事件处理
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.querySelector('.fa-heart')) {
+                    this.classList.toggle('liked');
+                }
+            });
+        });
+
+        document.querySelector('.join-button').addEventListener('click', function() {
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+
+        // 返回按钮点击事件
+        document.querySelector('.back-button').addEventListener('click', function() {
+            window.history.back();
+        });
+    </script>
+</body>
+</html> 

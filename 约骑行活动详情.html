@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动详情界面设计 - Activity Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .screen-container {
+            display: flex;
+            gap: 20px;
+            max-width: 100%;
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .screen-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 10px solid #333;
+            flex-shrink: 0;
+        }
+        
+        .content-container {
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        /* 隐藏滚动条但允许滚动 */
+        .content-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 顶部大图 */
+        .cover-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        /* 内容卡片 */
+        .content-card {
+            padding: 15px;
+            background: white;
+        }
+        
+        /* 活动标题 */
+        .activity-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        /* 信息项样式 */
+        .info-item {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+        
+        .info-label {
+            color: #999;
+            font-size: 14px;
+            min-width: 70px;
+        }
+        
+        .info-content {
+            flex: 1;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        /* 地址项特殊样式 */
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .location-content {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        .location-distance {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .location-btn {
+            color: #0084ff;
+            font-size: 22px;
+        }
+        
+        /* 分割线 */
+        .divider {
+            height: 8px;
+            background-color: #f5f5f5;
+            margin: 5px -15px;
+        }
+        
+        /* 发起人和参与人区域 */
+        .user-section {
+            padding: 0;
+            background: white;
+        }
+        
+        .section-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+        
+        .user-name-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .gender-icon {
+            font-size: 14px;
+        }
+        
+        .gender-icon.male {
+            color: #4a85fb;
+        }
+        
+        .gender-icon.female {
+            color: #ff6b9d;
+        }
+        
+        .user-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        
+        .user-tag {
+            font-size: 12px;
+            color: #666;
+            background-color: #f5f7fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        
+        .user-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .action-btn {
+            padding: 5px 12px;
+            border-radius: 15px;
+            background-color: #f5f5f5;
+            color: #333;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* 参与人列表 */
+        .participants {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .participant {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .participant-name {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .more-participants {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        /* 活动内容区域 */
+        .activity-content {
+            padding: 15px;
+            background: white;
+        }
+        
+        .content-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        
+        .content-image {
+            width: 100%;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        /* 评论区域 */
+        .comments-section {
+            padding: 15px;
+            background: white;
+            padding-bottom: 80px; /* 为底部固定按钮留出空间 */
+        }
+        
+        .comment-item {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .comment-content {
+            flex: 1;
+            margin-left: 10px;
+        }
+        
+        .comment-user {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        
+        .comment-text {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .comment-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .comment-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .like-btn, .reply-btn {
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            color: #999;
+        }
+        
+        .like-btn i, .reply-btn i {
+            margin-right: 3px;
+        }
+        
+        .official-tag {
+            background-color: #0084ff;
+            color: white;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            margin-left: 5px;
+        }
+        
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #003554;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        .nav-item.active {
+            color: #9A031E;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 20px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .page-title {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 同步滚动样式 */
+        .content-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .content-container::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="screen-container">
+        <!-- 中文版本 -->
+        <div class="phone-container">
+            <div class="screen-label">中文版</div>
+            <div class="back-button">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="page-title">约骑行活动详情</div>
+            
+            <div class="content-container">
+                <img src="https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="活动封面" class="cover-image">
+                
+                <div class="content-card">
+                    <h2 class="activity-title">昆山到温州168黄金海岸线自驾</h2>
+                    
+                    <div class="info-item">
+                        <div class="info-label">集合时间</div>
+                        <div class="info-content">2025/05/01 (周四) 07:00</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">集合地点</div>
+                        <div class="location-item">
+                            <div class="location-content">奥灶馆 虾棋路(银都店)</div>
+                            <div class="location-distance">3.6km</div>
+                            <div class="location-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">目的地</div>
+                        <div class="location-item">
+                            <div class="location-content">苍南168·MOJ coffee(东海岸一号公路2号店)</div>
+                            <div class="location-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="user-section content-card">
+                    <h3 class="section-title">活动发起人</h3>
+                    <div class="user-item">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="发起人头像" class="user-avatar">
+                        <div class="user-info">
+                            <div class="user-name-row">
+                                <div class="user-name">王强</div>
+                                <i class="fas fa-mars gender-icon male"></i>
+                            </div>
+                            <div class="user-tags">
+                                <span class="user-tag">穷游达人</span>
+                                <span class="user-tag">徒步爱好者</span>
+                            </div>
+                        </div>
+                        <button class="action-btn">关注</button>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="user-section content-card">
+                    <h3 class="section-title">活动参与人 (3/5)</h3>
+                    <div class="participants">
+                        <div class="participant">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="参与者头像" class="user-avatar">
+                            <div class="participant-name">王强</div>
+                        </div>
+                        <div class="participant">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="参与者头像" class="user-avatar">
+                            <div class="participant-name">李丽</div>
+                        </div>
+                        <div class="participant">
+                            <img src="https://randomuser.me/api/portraits/men/55.jpg" alt="参与者头像" class="user-avatar">
+                            <div class="participant-name">张伟</div>
+                        </div>
+                    </div>
+                    <div class="more-participants">查看全部</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="activity-content content-card">
+                    <h3 class="section-title">活动内容</h3>
+                    <div class="content-text">
+声明：
+1. 本活动是自助非盈利性质的活动，如遇意外，参与者自行承担。
+2. 骑行属于高风险活动，参与者需要保证技术过关和身体素质合格。
+
+D1安山集合后提前预约美食安排：单干：
+D2苍南到检查站休息补给站：住宿。
+D3乡村道路经过白水洋玩水，农庄。
+D4张贴沙滩，每到此，然后搭班车到温州（是推荐到的一站，如果有一颗去环游世界，那就一一个地方发现美景！
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="活动内容图片" class="content-image">
+                    <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="活动内容图片" class="content-image">
+                    <img src="https://images.unsplash.com/photo-1558981359-219d6364c9c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="活动内容图片" class="content-image">
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="comments-section content-card">
+                    <h3 class="section-title">评论(4)</h3>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/men/66.jpg" alt="评论者头像" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">看讨厌那天 <span class="official-tag">官方</span></div>
+                            <div class="comment-text">有什么问题可以一块过来</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 8:56</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> 点赞</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> 回复</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="评论者头像" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">格格巫图图</div>
+                            <div class="comment-text">准明显地出发可行吗</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 9:37</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> 22</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> 回复</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="评论者头像" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">小漫漫漫漫</div>
+                            <div class="comment-text">昆山离上海远吗？</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 9:45</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> 点赞</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> 回复</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="评论者头像" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">王强 <span class="official-tag">组织者</span></div>
+                            <div class="comment-text">可以</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 9:59</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> 点赞</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> 回复</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/men/43.jpg" alt="评论者头像" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">河马XUV01234</div>
+                            <div class="comment-text">这班一起骑到哪里下？</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 10:30</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> 点赞</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> 回复</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="../主界面.html" class="nav-item">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span>主页</span>
+                </a>
+                <a href="约旅伴.html" class="nav-item active">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span>约旅伴</span>
+                </a>
+                <a href="../消息.html" class="nav-item">
+                    <i class="fas fa-comments nav-icon"></i>
+                    <span>消息</span>
+                </a>
+                <a href="首次登录.html" class="nav-item">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span>个人</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 英文版本 -->
+        <div class="phone-container">
+            <div class="screen-label">English Version</div>
+            <div class="back-button">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="page-title">Activity Details</div>
+            
+            <div class="content-container">
+                <img src="https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Activity Cover" class="cover-image">
+                
+                <div class="content-card">
+                    <h2 class="activity-title">Kunshan to Wenzhou 168 Golden Coastline Cycling Tour</h2>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Meeting Time</div>
+                        <div class="info-content">2025/05/01 (Thursday) 07:00</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Meeting Point</div>
+                        <div class="location-item">
+                            <div class="location-content">Aozao Restaurant, Xiqi Road (Yindu Branch)</div>
+                            <div class="location-distance">3.6km</div>
+                            <div class="location-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">Destination</div>
+                        <div class="location-item">
+                            <div class="location-content">Cangnan 168·MOJ coffee (East Coast Highway No.2)</div>
+                            <div class="location-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="user-section content-card">
+                    <h3 class="section-title">Activity Organizer</h3>
+                    <div class="user-item">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Organizer Avatar" class="user-avatar">
+                        <div class="user-info">
+                            <div class="user-name-row">
+                                <div class="user-name">Wang Qiang</div>
+                                <i class="fas fa-mars gender-icon male"></i>
+                            </div>
+                            <div class="user-tags">
+                                <span class="user-tag">Budget Travel Expert</span>
+                                <span class="user-tag">Hiking Enthusiast</span>
+                            </div>
+                        </div>
+                        <button class="action-btn">Follow</button>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="user-section content-card">
+                    <h3 class="section-title">Participants (3/5)</h3>
+                    <div class="participants">
+                        <div class="participant">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Participant Avatar" class="user-avatar">
+                            <div class="participant-name">Wang Qiang</div>
+                        </div>
+                        <div class="participant">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Participant Avatar" class="user-avatar">
+                            <div class="participant-name">Li Li</div>
+                        </div>
+                        <div class="participant">
+                            <img src="https://randomuser.me/api/portraits/men/55.jpg" alt="Participant Avatar" class="user-avatar">
+                            <div class="participant-name">Zhang Wei</div>
+                        </div>
+                    </div>
+                    <div class="more-participants">View All</div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="activity-content content-card">
+                    <h3 class="section-title">Activity Content</h3>
+                    <div class="content-text">
+Notice:
+1. This is a self-organized, non-profit activity. Participants are responsible for their own safety.
+2. Cycling is a high-risk activity. Participants must ensure they have adequate technical skills and physical fitness.
+
+Day 1: Meet at Anshan, pre-arrange food arrangements
+Day 2: Rest and supply stop at Cangnan checkpoint, overnight stay
+Day 3: Rural roads through Baishuiyang for water activities, farm visit
+Day 4: Beach visit, then take bus to Wenzhou (recommended stop, if you dream of traveling the world, discover beauty in every place!)
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1565118531796-763e5082d113?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Activity Content Image" class="content-image">
+                    <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Activity Content Image" class="content-image">
+                    <img src="https://images.unsplash.com/photo-1558981359-219d6364c9c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Activity Content Image" class="content-image">
+                </div>
+                
+                <div class="divider"></div>
+                
+                <div class="comments-section content-card">
+                    <h3 class="section-title">Comments(4)</h3>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/men/66.jpg" alt="Commenter Avatar" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">Official Account <span class="official-tag">Official</span></div>
+                            <div class="comment-text">Feel free to join us if you have any questions</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 8:56</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> Like</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> Reply</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Commenter Avatar" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">Grace</div>
+                            <div class="comment-text">Can we depart at the scheduled time?</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 9:37</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> 22</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> Reply</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="Commenter Avatar" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">Mandy</div>
+                            <div class="comment-text">Is Kunshan far from Shanghai?</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 9:45</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> Like</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> Reply</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Commenter Avatar" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">Wang Qiang <span class="official-tag">Organizer</span></div>
+                            <div class="comment-text">Yes, we can</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 9:59</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> Like</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> Reply</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <img src="https://randomuser.me/api/portraits/men/43.jpg" alt="Commenter Avatar" class="user-avatar">
+                        <div class="comment-content">
+                            <div class="comment-user">HippoXUV01234</div>
+                            <div class="comment-text">Where does this group ride to?</div>
+                            <div class="comment-info">
+                                <span>2025-04-20 10:30</span>
+                                <div class="comment-actions">
+                                    <div class="like-btn"><i class="far fa-thumbs-up"></i> Like</div>
+                                    <div class="reply-btn"><i class="far fa-comment"></i> Reply</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="../主界面.html" class="nav-item">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span>Home</span>
+                </a>
+                <a href="约旅伴.html" class="nav-item active">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span>Travel Buddy</span>
+                </a>
+                <a href="../消息.html" class="nav-item">
+                    <i class="fas fa-comments nav-icon"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="首次登录.html" class="nav-item">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 同步滚动功能
+            const containers = document.querySelectorAll('.content-container');
+            containers.forEach(container => {
+                container.addEventListener('scroll', function() {
+                    const scrollTop = this.scrollTop;
+                    containers.forEach(otherContainer => {
+                        if (otherContainer !== this) {
+                            otherContainer.scrollTop = scrollTop;
+                        }
+                    });
+                });
+            });
+
+            // 返回按钮
+            document.querySelectorAll('.back-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.history.back();
+                });
+            });
+            
+            // 地点导航按钮
+            const locationBtns = document.querySelectorAll('.location-btn');
+            locationBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除alert提示
+                });
+            });
+            
+            // 关注按钮
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.textContent === '关注' || this.textContent === 'Follow') {
+                        this.textContent = this.textContent === '关注' ? '已关注' : 'Following';
+                    } else {
+                        this.textContent = this.textContent === '已关注' ? '关注' : 'Follow';
+                    }
+                });
+            });
+            
+            // 查看全部参与者
+            document.querySelectorAll('.more-participants').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除alert提示
+                });
+            });
+            
+            // 点赞按钮
+            const likeBtns = document.querySelectorAll('.like-btn');
+            likeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.innerHTML.includes('点赞') || this.innerHTML.includes('Like')) {
+                        this.innerHTML = '<i class="fas fa-thumbs-up"></i> 1';
+                    } else if (this.innerHTML.includes('22')) {
+                        this.innerHTML = '<i class="fas fa-thumbs-up"></i> 23';
+                    } else {
+                        const currentLikes = parseInt(this.innerText.trim());
+                        if (isNaN(currentLikes)) {
+                            this.innerHTML = this.innerHTML.includes('Like') ? 
+                                '<i class="far fa-thumbs-up"></i> Like' : 
+                                '<i class="far fa-thumbs-up"></i> 点赞';
+                        } else {
+                            this.innerHTML = this.innerHTML.includes('Like') ? 
+                                '<i class="far fa-thumbs-up"></i> Like' : 
+                                '<i class="far fa-thumbs-up"></i> 点赞';
+                        }
+                    }
+                });
+            });
+
+            // 回复按钮
+            const replyBtns = document.querySelectorAll('.reply-btn');
+            replyBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除alert提示
+                });
+            });
+
+            // 活动内容图片点击放大
+            const contentImages = document.querySelectorAll('.content-image');
+            contentImages.forEach(img => {
+                img.addEventListener('click', function() {
+                    // 移除alert提示
+                });
+            });
+
+            // 头像点击查看用户信息
+            const userAvatars = document.querySelectorAll('.user-avatar');
+            userAvatars.forEach(avatar => {
+                avatar.addEventListener('click', function() {
+                    // 移除alert提示
+                });
+            }); 
+        });
+    </script>
+</body>
+</html>
+

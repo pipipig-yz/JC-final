@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Connect - 约旅伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            padding: 20px;
+            gap: 40px;
+        }
+
+        .screen-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .screen-label {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #003554;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 10px solid #333;
+        }
+        
+        .content-container {
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            position: relative;
+            scroll-behavior: smooth;
+        }
+        
+        /* 隐藏滚动条但允许滚动 */
+        .content-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 原型设计样式 */
+        .status-bar {
+            height: 24px;
+            width: 100%;
+            background: #fff;
+            position: absolute;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 15px;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .status-bar .time {
+            font-weight: 600;
+        }
+        
+        .status-bar .icons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .header {
+            padding: 30px 15px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .back-button {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 20px;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .location {
+            display: flex;
+            align-items: center;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .location i {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .tab-buttons {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .tab-button {
+            width: 48%;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        
+        .tab-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .tab-button i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .tab-button:first-child {
+            background: linear-gradient(45deg, #003554);
+        }
+        
+        .tab-button:last-child {
+            background: linear-gradient(45deg, #9a031e, #9a031e);
+        }
+        
+        .tab-button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            padding: 0 15px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .category-tab {
+            padding: 8px 5px;
+            margin-right: 20px;
+            font-size: 16px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .category-tab.active {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .category-indicator {
+            position: absolute;
+            bottom: 0;
+            height: 3px;
+            width: 20px;
+            background: #003554;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-container {
+            padding: 0 15px;
+            height: calc(100% - 200px);
+            overflow-y: auto;
+        }
+        
+        .activity-card {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .activity-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .registering-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ff5722;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .activity-details {
+            padding: 12px;
+        }
+        
+        .activity-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .activity-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .activity-info i {
+            margin-right: 5px;
+            font-size: 14px;
+            color: #999;
+            width: 18px;
+        }
+        
+        .participants {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .avatar-group {
+            display: flex;
+        }
+        
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -8px;
+            background-size: cover;
+        }
+        
+        .avatar:first-child {
+            margin-left: 0;
+        }
+        
+        .register-button {
+            background: #003554;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .register-info {
+            font-size: 12px;
+            color: #666;
+            margin-right: 10px;
+        }
+        
+        .activity-image-container {
+            position: relative;
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border-top: 1px solid #eee;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #003554;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .nav-item.active {
+            color: #9A031E;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-container">
+        <!-- 中文版本 -->
+        <div class="phone-container">
+            <div class="screen-label">中文版</div>
+            <div class="status-bar">
+                <span class="time">10:39</span>
+                <div class="icons">
+                    <span><i class="fas fa-signal"></i></span>
+                    <span><i class="fas fa-wifi"></i></span>
+                    <span><i class="fas fa-battery-three-quarters"></i></span>
+                </div>
+            </div>
+            
+            <div class="content-container" id="cn-content">
+                <div class="header">
+                    <div class="back-button">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="title">约旅伴</div>
+                    <div class="location">
+                        学校 <i class="fas fa-caret-down"></i>
+                    </div>
+                </div>
+                
+                <div class="tab-buttons">
+                    <a href="创建新的界面.html" class="tab-button">
+                        <i class="fas fa-plus"></i>
+                        <span>创建新的</span>
+                    </a>
+                    <a href="#" class="tab-button">
+                        <i class="fas fa-search"></i>
+                        <span>我的行程</span>
+                    </a>
+                </div>
+                
+                <div class="category-tabs">
+                    <div class="category-tab active" data-tab="nearby">距离优先</div>
+                    <div class="category-tab" data-tab="latest">最新发布</div>
+                    <div class="category-tab" data-tab="joined">已参与</div>
+                    <div class="category-indicator" style="left: 10px;"></div>
+                </div>
+                
+                <div class="activity-container" id="activity-container">
+                    <!-- 第一个活动卡片 -->
+                    <div class="activity-card">
+                        <div class="activity-image-container">
+                            <img src="https://bpic.588ku.com/back_list_pic/20/12/03/d429b04015ad145a0635c8e338f1f5e2.jpg" alt="昆山到温州168黄金海岸线" class="activity-image">
+                            <div class="registering-badge">报名中</div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">昆山到温州168黄金海岸线</div>
+                            <div class="activity-info">
+                                <i class="far fa-clock"></i>
+                                <span>集合时间 2025/05/01 (周四) 07:00</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>奥灶馆(虹桥路店) | 3.7km</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-route"></i>
+                                <span>苍南168·MOJ coffee(东海岸一号公路2号店) | 4...</span>
+                            </div>
+                            <div class="participants">
+                                <div class="avatar-group">
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/44.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/55.jpg');"></div>
+                                    <span class="register-info">3/5位已报名</span>
+                                </div>
+                                <button class="register-button">去报名</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 第二个活动卡片 -->
+                    <div class="activity-card">
+                        <div class="activity-image-container">
+                            <img src="https://img1.qunarzz.com/travel/d2/1610/86/f04b5f3723b7aeb5.jpg" alt="全昆山寻飞度车友" class="activity-image">
+                            <div class="registering-badge">报名中</div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">杭州西湖之旅</div>
+                            <div class="activity-info">
+                                <i class="far fa-clock"></i>
+                                <span>集合时间 2025/04/25 (周五) 08:59</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>昆山慧聚寺 | 12.1km</span>
+                            </div>
+                            <div class="participants">
+                                <div class="avatar-group">
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/66.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/75.jpg');"></div>
+                                    <span class="register-info">2/6位已报名</span>
+                                </div>
+                                <button class="register-button">去报名</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第三个活动卡片 -->
+                    <div class="activity-card">
+                        <div class="activity-image-container">
+                            <img src="https://ts1.tc.mm.bing.net/th/id/R-C.57f633b87ca3197f29e16fd88bff4748?rik=IpNnLbq9vJdLKg&riu=http%3a%2f%2fwww.bijingdi.com%2fuploadfile%2f2021%2f0718%2f20210718150807461.jpg&ehk=jTc3kuTdYy9%2bwaKGI3vJrLi3BV3jVzzhJ02%2bAdKMtXU%3d&risl=&pid=ImgRaw&r=0" alt="全昆山寻飞度车友" class="activity-image">
+                            <div class="registering-badge">报名中</div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">新疆独库公路</div>
+                            <div class="activity-info">
+                                <i class="far fa-clock"></i>
+                                <span>集合时间 2025/05/25 (周五) 08:59</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>昆山杜克大学地下车库 | 12.1km</span>
+                            </div>
+                            <div class="participants">
+                                <div class="avatar-group">
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/66.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/75.jpg');"></div>
+                                    <span class="register-info">2/6位已报名</span>
+                                </div>
+                                <button class="register-button">去报名</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span>主页</span>
+                </a>
+                <a href="约旅伴.html" class="nav-item active">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span>约旅伴</span>
+                </a>
+                <a href="消息.html" class="nav-item">
+                    <i class="fas fa-comments nav-icon"></i>
+                    <span>消息</span>
+                </a>
+                <a href="登录界面.html" class="nav-item">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span>个人</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 英文版本 -->
+        <div class="phone-container">
+            <div class="screen-label">English Version</div>
+            <div class="status-bar">
+                <span class="time">10:39</span>
+                <div class="icons">
+                    <span><i class="fas fa-signal"></i></span>
+                    <span><i class="fas fa-wifi"></i></span>
+                    <span><i class="fas fa-battery-three-quarters"></i></span>
+                </div>
+            </div>
+            
+            <div class="content-container" id="en-content">
+                <div class="header">
+                    <div class="back-button">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="title">Find Travel Partners</div>
+                    <div class="location">
+                        School <i class="fas fa-caret-down"></i>
+                    </div>
+                </div>
+                
+                <div class="tab-buttons">
+                    <a href="创建新的界面.html" class="tab-button">
+                        <i class="fas fa-plus"></i>
+                        <span>Create New</span>
+                    </a>
+                    <a href="#" class="tab-button">
+                        <i class="fas fa-search"></i>
+                        <span>My Trips</span>
+                    </a>
+                </div>
+                
+                <div class="category-tabs">
+                    <div class="category-tab active" data-tab="nearby">Distance First</div>
+                    <div class="category-tab" data-tab="latest">Latest Posts</div>
+                    <div class="category-tab" data-tab="joined">Joined</div>
+                    <div class="category-indicator" style="left: 10px;"></div>
+                </div>
+                
+                <div class="activity-container" id="activity-container-en">
+                    <!-- First Activity Card -->
+                    <div class="activity-card">
+                        <div class="activity-image-container">
+                            <img src="https://bpic.588ku.com/back_list_pic/20/12/03/d429b04015ad145a0635c8e338f1f5e2.jpg" alt="Kunshan to Wenzhou 168 Golden Coastline" class="activity-image">
+                            <div class="registering-badge">Registering</div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">Kunshan to Wenzhou 168 Golden Coastline</div>
+                            <div class="activity-info">
+                                <i class="far fa-clock"></i>
+                                <span>Meeting Time 2025/05/01 (Thu) 07:00</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Aozao Restaurant (Hongqiao Road) | 3.7km</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-route"></i>
+                                <span>Cangnan 168·MOJ coffee (East Coast Highway No.2) | 4...</span>
+                            </div>
+                            <div class="participants">
+                                <div class="avatar-group">
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/44.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/55.jpg');"></div>
+                                    <span class="register-info">3/5 Registered</span>
+                                </div>
+                                <button class="register-button">Register</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Second Activity Card -->
+                    <div class="activity-card">
+                        <div class="activity-image-container">
+                            <img src="https://img1.qunarzz.com/travel/d2/1610/86/f04b5f3723b7aeb5.jpg" alt="Hangzhou West Lake Tour" class="activity-image">
+                            <div class="registering-badge">Registering</div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">Hangzhou West Lake Tour</div>
+                            <div class="activity-info">
+                                <i class="far fa-clock"></i>
+                                <span>Meeting Time 2025/04/25 (Fri) 08:59</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Kunshan Huiju Temple | 12.1km</span>
+                            </div>
+                            <div class="participants">
+                                <div class="avatar-group">
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/66.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/75.jpg');"></div>
+                                    <span class="register-info">2/6 Registered</span>
+                                </div>
+                                <button class="register-button">Register</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Third Activity Card -->
+                    <div class="activity-card">
+                        <div class="activity-image-container">
+                            <img src="https://ts1.tc.mm.bing.net/th/id/R-C.57f633b87ca3197f29e16fd88bff4748?rik=IpNnLbq9vJdLKg&riu=http%3a%2f%2fwww.bijingdi.com%2fuploadfile%2f2021%2f0718%2f20210718150807461.jpg&ehk=jTc3kuTdYy9%2bwaKGI3vJrLi3BV3jVzzhJ02%2bAdKMtXU%3d&risl=&pid=ImgRaw&r=0" alt="Xinjiang Duku Highway" class="activity-image">
+                            <div class="registering-badge">Registering</div>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">Xinjiang Duku Highway</div>
+                            <div class="activity-info">
+                                <i class="far fa-clock"></i>
+                                <span>Meeting Time 2025/05/25 (Fri) 08:59</span>
+                            </div>
+                            <div class="activity-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Duke Kunshan University Parking | 12.1km</span>
+                            </div>
+                            <div class="participants">
+                                <div class="avatar-group">
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/66.jpg');"></div>
+                                    <div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/75.jpg');"></div>
+                                    <span class="register-info">2/6 Registered</span>
+                                </div>
+                                <button class="register-button">Register</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span>Home</span>
+                </a>
+                <a href="约旅伴.html" class="nav-item active">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span>Find Partners</span>
+                </a>
+                <a href="消息.html" class="nav-item">
+                    <i class="fas fa-comments nav-icon"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="登录界面.html" class="nav-item">
+                    <i class="fas fa-user nav-icon"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 同步滚动
+            const cnContent = document.getElementById('cn-content');
+            const enContent = document.getElementById('en-content');
+            
+            cnContent.addEventListener('scroll', function() {
+                enContent.scrollTop = this.scrollTop;
+            });
+            
+            enContent.addEventListener('scroll', function() {
+                cnContent.scrollTop = this.scrollTop;
+            });
+            
+            // 分类标签切换
+            const tabs = document.querySelectorAll('.category-tab');
+            const indicators = document.querySelectorAll('.category-indicator');
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活跃状态
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    // 添加当前活跃状态
+                    this.classList.add('active');
+                    // 移动指示器
+                    const indicator = indicators[index % 2]; // 中文和英文版本各有一个指示器
+                    indicator.style.left = `${this.offsetLeft + (this.offsetWidth / 2) - 10}px`;
+                });
+            });
+            
+            // 返回按钮
+            document.querySelectorAll('.back-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    window.history.back();
+                });
+            });
+            
+            // 报名按钮
+            const registerButtons = document.querySelectorAll('.register-button');
+            registerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    window.location.href = '约骑行活动详情.html';
+                });
+            });
+            
+            // 活动卡片点击
+            const activityCards = document.querySelectorAll('.activity-card');
+            activityCards.forEach(card => {
+                card.querySelector('.activity-image-container').addEventListener('click', function() {
+                    window.location.href = '约骑行活动详情.html';
+                });
+                
+                card.querySelector('.activity-title').addEventListener('click', function() {
+                    window.location.href = '约骑行活动详情.html';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

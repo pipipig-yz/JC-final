@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户头像展示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .avatar-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .avatar-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .avatar-item img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .avatar-item p {
+            margin: 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #333;">用户头像展示</h1>
+    <div class="avatar-container">
+        <div class="avatar-item">
+            <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像1">
+            <p>头像1</p>
+        </div>
+        <div class="avatar-item">
+            <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像2">
+            <p>头像2</p>
+        </div>
+        <div class="avatar-item">
+            <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像3">
+            <p>头像3</p>
+        </div>
+        <div class="avatar-item">
+            <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像4">
+            <p>头像4</p>
+        </div>
+        <div class="avatar-item">
+            <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.7m7m6w7ffmsVU9dIhz-5awAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像5">
+            <p>头像5</p>
+        </div>
+        <div class="avatar-item">
+            <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C._el_4pEdNLiNyHwaylIk9AHaHR?w=190&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像6">
+            <p>头像6</p>
+        </div>
+        <div class="avatar-item">
+            <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.GiEl3jnmGoET-EfxX2J6yAAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="头像7">
+            <p>头像7</p>
+        </div>
+    </div>
+</body>
+</html> 

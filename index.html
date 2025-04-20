@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Connect - 双屏显示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .screen-container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .screen-label {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .screen-label.zh {
+            color: #003554;
+        }
+
+        .screen-label.en {
+            color: #9A031E;
+        }
+
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 10px solid #333;
+        }
+
+        .phone-content {
+            width: 100%;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            position: relative;
+            padding: 8px;
+        }
+
+        .feed-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .feed-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .post {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .post:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .post-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .post-content {
+            padding: 8px;
+        }
+
+        .post-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 8px 8px;
+            gap: 20px;
+        }
+
+        .like-button {
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .like-button.liked {
+            color: #ff2442;
+        }
+
+        .join-button {
+            background-color: #0081ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .join-button span {
+            display: inline-block;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .join-button span.animate {
+            transform: scale(1.2);
+        }
+
+        .join-button:hover {
+            background-color: #0066cc;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #003554;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        .nav-item.active {
+            color: #9A031E;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* 隐藏滚动条但保持滚动功能 */
+        .phone-content::-webkit-scrollbar {
+            display: none;
+        }
+        .phone-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-container">
+        <div>
+            <div class="screen-label zh">中文版</div>
+            <div class="phone-container" id="zh-screen">
+                <div class="phone-content">
+                    <div class="feed-container">
+                        <div class="feed-column">
+                            <div class="post" data-href="张家界/张家界.html">
+                                <img src="张家界/张家界1.jpg" alt="张家界" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">带我的外国朋友去张家界</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="南京/南京.html">
+                                <img src="南京/南京.jpg" alt="南京" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">4.30日去南京找旅游搭子</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="F1/F1.html">
+                                <img src="F1/F1.jpg" alt="F1上海站" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">F1上海站正赛蹲搭子</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="空山基/空山基.html">
+                                <img src="空山基/空山基.jpg" alt="空山基展览" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">日本艺术家空山基来上海办展了！</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="爬山搭子/爬山搭子.html">
+                                <img src="爬山搭子/爬山搭子.jpg" alt="爬山" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">苏州附近有没有一起爬山的驴友</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feed-column">
+                            <div class="post" data-href="机车.html">
+                                <img src="机车.jpg" alt="机车" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">昆山到温州骑行找搭子</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button" onclick="window.location.href='约骑行活动详情.html'"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="周庄/周庄.html">
+                                <img src="周庄/周庄.jpg" alt="周庄古镇" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">周庄一日游攻略分享</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="苏州/苏州.html">
+                                <img src="苏州/苏州.jpg" alt="苏州" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">大学生特种兵三日游苏州</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="透纳/透纳.html">
+                                <img src="透纳/透纳.jpg" alt="透纳展览" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">浦东美术馆有透纳的真迹，谁跟我一起去看啊！</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="西浦参观/西浦参观.html">
+                                <img src="西浦参观/西浦参观.jpg" alt="西浦大学" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">DKU学生参观西浦求助</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="苏州博物馆/苏州博物馆.html">
+                                <img src="苏州博物馆/苏州博物馆.jpg" alt="苏州博物馆" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">有人想一起去苏州博物馆吗</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-nav">
+                    <a href="主界面.html" class="nav-item active">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span>主页</span>
+                    </a>
+                    <a href="约旅伴.html" class="nav-item">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>约旅伴</span>
+                    </a>
+                    <a href="消息.html" class="nav-item">
+                        <i class="fas fa-comments nav-icon"></i>
+                        <span>消息</span>
+                    </a>
+                    <a href="首次登录.html" class="nav-item">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span>个人</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="screen-label en">English Version</div>
+            <div class="phone-container" id="en-screen">
+                <div class="phone-content">
+                    <div class="feed-container">
+                        <div class="feed-column">
+                            <div class="post" data-href="张家界/张家界.html">
+                                <img src="张家界/张家界1.jpg" alt="Zhangjiajie" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Taking my foreign friend to Zhangjiajie</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="南京/南京.html">
+                                <img src="南京/南京.jpg" alt="Nanjing" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Looking for travel buddies to Nanjing on April 30th</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="F1/F1.html">
+                                <img src="F1/F1.jpg" alt="F1 Shanghai" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Looking for buddies for F1 Shanghai Grand Prix</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="空山基/空山基.html">
+                                <img src="空山基/空山基.jpg" alt="Hajime Sorayama Exhibition" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Japanese artist Hajime Sorayama is exhibiting in Shanghai!</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="爬山搭子/爬山搭子.html">
+                                <img src="爬山搭子/爬山搭子.jpg" alt="Mountain Climbing" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Looking for hiking buddies near Suzhou</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feed-column">
+                            <div class="post" data-href="机车.html">
+                                <img src="机车.jpg" alt="Motorcycle" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Looking for riding buddies from Kunshan to Wenzhou</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button" onclick="window.location.href='约骑行活动详情.html'"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="周庄/周庄.html">
+                                <img src="周庄/周庄.jpg" alt="Zhouzhuang Ancient Town" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Zhouzhuang one-day tour guide</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="苏州/苏州.html">
+                                <img src="苏州/苏州.jpg" alt="Suzhou" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">College student's three-day Suzhou adventure</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="透纳/透纳.html">
+                                <img src="透纳/透纳.jpg" alt="Turner Exhibition" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Turner's original works at Pudong Art Museum, who wants to go?</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="西浦参观/西浦参观.html">
+                                <img src="西浦参观/西浦参观.jpg" alt="XJTLU" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">DKU student looking for help to visit XJTLU</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="post" data-href="苏州博物馆/苏州博物馆.html">
+                                <img src="苏州博物馆/苏州博物馆.jpg" alt="Suzhou Museum" class="post-image">
+                                <div class="post-content">
+                                    <div class="post-title">Anyone want to visit Suzhou Museum together?</div>
+                                    <div class="post-actions">
+                                        <div class="like-button">❤️</div>
+                                        <button class="join-button"><span>JOIN!</span></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-nav">
+                    <a href="主界面.html" class="nav-item active">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="约旅伴.html" class="nav-item">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>Travel Buddies</span>
+                    </a>
+                    <a href="消息.html" class="nav-item">
+                        <i class="fas fa-comments nav-icon"></i>
+                        <span>Messages</span>
+                    </a>
+                    <a href="首次登录.html" class="nav-item">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 同步滚动
+            const zhContent = document.querySelector('#zh-screen .phone-content');
+            const enContent = document.querySelector('#en-screen .phone-content');
+            
+            zhContent.addEventListener('scroll', function() {
+                enContent.scrollTop = this.scrollTop;
+            });
+            
+            enContent.addEventListener('scroll', function() {
+                zhContent.scrollTop = this.scrollTop;
+            });
+            
+            // 同步点赞按钮
+            const zhLikeButtons = document.querySelectorAll('#zh-screen .like-button');
+            const enLikeButtons = document.querySelectorAll('#en-screen .like-button');
+            
+            zhLikeButtons.forEach((button, index) => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('liked');
+                    enLikeButtons[index].classList.toggle('liked');
+                });
+            });
+            
+            enLikeButtons.forEach((button, index) => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('liked');
+                    zhLikeButtons[index].classList.toggle('liked');
+                });
+            });
+            
+            // 同步帖子点击
+            const zhPosts = document.querySelectorAll('#zh-screen .post');
+            const enPosts = document.querySelectorAll('#en-screen .post');
+            
+            zhPosts.forEach((post, index) => {
+                post.addEventListener('click', function(e) {
+                    if (!e.target.closest('.join-button') && !e.target.closest('.like-button')) {
+                        const href = this.getAttribute('data-href');
+                        window.location.href = href;
+                    }
+                });
+            });
+            
+            enPosts.forEach((post, index) => {
+                post.addEventListener('click', function(e) {
+                    if (!e.target.closest('.join-button') && !e.target.closest('.like-button')) {
+                        const href = this.getAttribute('data-href');
+                        window.location.href = href;
+                    }
+                });
+            });
+            
+            // 同步导航栏点击
+            document.querySelectorAll('#zh-screen .nav-item').forEach((item, index) => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href');
+                    
+                    // 更新active状态
+                    document.querySelectorAll('#zh-screen .nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('#en-screen .nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    document.querySelectorAll('#en-screen .nav-item')[index].classList.add('active');
+                    
+                    // 页面跳转
+                    window.location.href = target;
+                });
+            });
+            
+            document.querySelectorAll('#en-screen .nav-item').forEach((item, index) => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href');
+                    
+                    // 更新active状态
+                    document.querySelectorAll('#en-screen .nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('#zh-screen .nav-item').forEach(nav => {
+                        nav.classList.remove('active');
+                    });
+                    document.querySelectorAll('#zh-screen .nav-item')[index].classList.add('active');
+                    
+                    // 页面跳转
+                    window.location.href = target;
+                });
+            });
+            
+            // 添加JOIN按钮动画效果
+            document.querySelectorAll('.join-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 如果不是机车帖子的JOIN按钮，添加动画效果
+                    if (!this.closest('.post').getAttribute('data-href').includes('机车')) {
+                        const span = this.querySelector('span');
+                        span.classList.add('animate');
+                        setTimeout(() => {
+                            span.classList.remove('animate');
+                        }, 500);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
