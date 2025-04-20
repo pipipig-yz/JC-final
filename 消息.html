@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息 | Messages - Journey Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 40px;
+        }
+
+        .interface-container {
+            display: flex;
+            gap: 40px;
+        }
+
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 10px solid #333;
+        }
+
+        .phone-container.en {
+            border-color: #666;
+        }
+
+        .phone-content {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            height: 60px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .action-icon {
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* 消息列表 */
+        .message-list {
+            padding-bottom: 20px;
+        }
+
+        /* 折叠列表 */
+        .collapsible-section {
+            margin-bottom: 10px;
+        }
+
+        .collapsible-header {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .collapsible-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.3s;
+        }
+
+        .collapsible-icon.active {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.active {
+            max-height: 1000px;
+        }
+
+        /* 消息项 */
+        .message-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .message-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .message-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .message-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .message-text {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .unread-badge {
+            background-color: #ff2442;
+            color: white;
+            font-size: 12px;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 5px;
+        }
+
+        /* 群聊头像 */
+        .group-avatar {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-right: 15px;
+            overflow: hidden;
+        }
+
+        .group-avatar img {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            object-fit: cover;
+        }
+
+        .group-avatar img:nth-child(1) {
+            top: 0;
+            left: 0;
+        }
+
+        .group-avatar img:nth-child(2) {
+            top: 0;
+            right: 0;
+        }
+
+        .group-avatar img:nth-child(3) {
+            bottom: 0;
+            left: 0;
+        }
+
+        .group-avatar img:nth-child(4) {
+            bottom: 0;
+            right: 0;
+        }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #003554;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        .nav-item.active {
+            color: #9A031E;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* 隐藏滚动条但保持滚动功能 */
+        .phone-content::-webkit-scrollbar {
+            display: none;
+        }
+        .phone-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 聊天界面样式 */
+        .chat-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #f5f5f5;
+            z-index: 1000;
+        }
+
+        .chat-header {
+            height: 60px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .back-button {
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            height: calc(100% - 120px);
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message-bubble.received {
+            align-self: flex-start;
+            background-color: white;
+            border-top-left-radius: 5px;
+        }
+
+        .message-bubble.sent {
+            align-self: flex-end;
+            background-color: #95ec69;
+            border-top-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .chat-input {
+            height: 60px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-box {
+            flex: 1;
+            height: 40px;
+            background-color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            margin-right: 10px;
+        }
+
+        .input-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .voice-button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .plus-button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .plus-menu {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            width: 200px;
+            z-index: 1001;
+        }
+
+        .plus-menu.active {
+            display: block;
+        }
+
+        .plus-menu-item {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .plus-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .plus-menu-icon {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .plus-menu-text {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="interface-container">
+        <!-- 中文界面 -->
+        <div class="phone-container">
+            <div class="phone-content">
+                <!-- 顶部导航栏 -->
+                <div class="top-bar">
+                    <div class="page-title">消息</div>
+                    <div class="action-icons">
+                        <i class="fas fa-search action-icon"></i>
+                        <i class="fas fa-plus action-icon"></i>
+                    </div>
+                </div>
+
+                <!-- 消息列表 -->
+                <div class="message-list">
+                    <!-- 南京折叠列表 -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">南京</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openChat('戴子衿', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">戴子衿</div>
+                                        <div class="message-time">昨天</div>
+                                    </div>
+                                    <div class="message-text">我准备第一天去夫子庙，总统府，钟山。</div>
+                                </div>
+                                <div class="unread-badge">2</div>
+                            </div>
+                            <div class="message-item" onclick="openChat('朱宇程', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">朱宇程</div>
+                                        <div class="message-time">昨天</div>
+                                    </div>
+                                    <div class="message-text">我看南京站附近的全季酒店300一晚挺不错的。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 透纳折叠列表 -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">透纳</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openChat('胡袁菲', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">胡袁菲</div>
+                                        <div class="message-time">周二</div>
+                                    </div>
+                                    <div class="message-text">我之前上过美术课教授说透纳是后印象派的巅峰人物。</div>
+                                </div>
+                                <div class="unread-badge">1</div>
+                            </div>
+                            <div class="message-item" onclick="openChat('周界同', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">周界同</div>
+                                        <div class="message-time">周三</div>
+                                    </div>
+                                    <div class="message-text">我在浦东文化上可以抢到免费的票。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- F1折叠列表 -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">F1</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openChat('金苡萱', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.7m7m6w7ffmsVU9dIhz-5awAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.7m7m6w7ffmsVU9dIhz-5awAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">金苡萱</div>
+                                        <div class="message-time">今天</div>
+                                    </div>
+                                    <div class="message-text">我在B1看台25排，你在哪</div>
+                                </div>
+                                <div class="unread-badge">3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 群聊折叠列表 -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">群聊</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openGroupChat('南京', ['戴子衿', '朱宇程', '胡袁菲', '周界同', '金苡萱'], ['https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7'])">
+                                <div class="group-avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">南京</div>
+                                        <div class="message-time">昨天</div>
+                                    </div>
+                                    <div class="message-text">戴子衿: 我准备第一天去夫子庙，总统府，钟山。</div>
+                                </div>
+                                <div class="unread-badge">5</div>
+                            </div>
+
+                            <div class="message-item" onclick="openGroupChat('F1', ['戴子衿', '朱宇程', '胡袁菲', '周界同', '金苡萱'], ['https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7'])">
+                                <div class="group-avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">F1</div>
+                                        <div class="message-time">今天</div>
+                                    </div>
+                                    <div class="message-text">金苡萱: 我在B1看台25排，你在哪</div>
+                                </div>
+                                <div class="unread-badge">8</div>
+                            </div>
+
+                            <div class="message-item" onclick="openGroupChat('透纳', ['戴子衿', '朱宇程', '胡袁菲', '周界同', '金苡萱'], ['https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7'])">
+                                <div class="group-avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="用户头像">
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">透纳</div>
+                                        <div class="message-time">今天</div>
+                                    </div>
+                                    <div class="message-text">胡袁菲: 我之前上过美术课教授说透纳是后印象派的巅峰人物。</div>
+                                </div>
+                                <div class="unread-badge">4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部导航栏 -->
+                <div class="bottom-nav">
+                    <a href="index.html" class="nav-item">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span>主页</span>
+                    </a>
+                    <a href="约旅伴.html" class="nav-item">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>约旅伴</span>
+                    </a>
+                    <a href="消息.html" class="nav-item active">
+                        <i class="fas fa-comments nav-icon"></i>
+                        <span>消息</span>
+                    </a>
+                    <a href="登录界面.html" class="nav-item">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span>个人</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 聊天界面 -->
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-header">
+                    <div class="back-button" onclick="closeChat()">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <div class="chat-title" id="chatTitle">聊天</div>
+                    <div class="action-icons">
+                        <i class="fas fa-ellipsis-v action-icon"></i>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <!-- 聊天消息将通过JavaScript动态添加 -->
+                </div>
+                <div class="chat-input">
+                    <div class="input-box">
+                        <input type="text" placeholder="输入消息..." id="messageInput">
+                        <div class="voice-button">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                    </div>
+                    <div class="plus-button" onclick="togglePlusMenu()">
+                        <i class="fas fa-plus"></i>
+                        <div class="plus-menu" id="plusMenu">
+                            <div class="plus-menu-item">
+                                <div class="plus-menu-icon"><i class="fas fa-image"></i></div>
+                                <div class="plus-menu-text">相册</div>
+                            </div>
+                            <div class="plus-menu-item">
+                                <div class="plus-menu-icon"><i class="fas fa-file"></i></div>
+                                <div class="plus-menu-text">文件</div>
+                            </div>
+                            <div class="plus-menu-item">
+                                <div class="plus-menu-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="plus-menu-text">位置</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- English Interface -->
+        <div class="phone-container en">
+            <div class="phone-content">
+                <!-- Top Navigation Bar -->
+                <div class="top-bar">
+                    <div class="page-title">Messages</div>
+                    <div class="action-icons">
+                        <i class="fas fa-search action-icon"></i>
+                        <i class="fas fa-plus action-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Message List -->
+                <div class="message-list">
+                    <!-- Nanjing Collapsible List -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">Nanjing</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openChat('Dai Zijin', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Dai Zijin</div>
+                                        <div class="message-time">Yesterday</div>
+                                    </div>
+                                    <div class="message-text">I plan to visit Fuzimiao, Presidential Palace, and Zhongshan Mountain on the first day.</div>
+                                </div>
+                                <div class="unread-badge">2</div>
+                            </div>
+                            <div class="message-item" onclick="openChat('Zhu Yucheng', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Zhu Yucheng</div>
+                                        <div class="message-time">Yesterday</div>
+                                    </div>
+                                    <div class="message-text">I found a nice JI Hotel near Nanjing Station for 300 yuan per night.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Turner Collapsible List -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">Turner</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openChat('Hu Yuanfei', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Hu Yuanfei</div>
+                                        <div class="message-time">Tuesday</div>
+                                    </div>
+                                    <div class="message-text">My art professor said Turner was a pinnacle figure in Post-Impressionism.</div>
+                                </div>
+                                <div class="unread-badge">1</div>
+                            </div>
+                            <div class="message-item" onclick="openChat('Zhou Jietong', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Zhou Jietong</div>
+                                        <div class="message-time">Wednesday</div>
+                                    </div>
+                                    <div class="message-text">I managed to get free tickets at Pudong Culture.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- F1 Collapsible List -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">F1</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openChat('Jin Yixuan', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.7m7m6w7ffmsVU9dIhz-5awAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7')">
+                                <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.7m7m6w7ffmsVU9dIhz-5awAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar" class="message-avatar">
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Jin Yixuan</div>
+                                        <div class="message-time">Today</div>
+                                    </div>
+                                    <div class="message-text">I'm at Row 25 in Stand B1, where are you?</div>
+                                </div>
+                                <div class="unread-badge">3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group Chats Collapsible List -->
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <div class="collapsible-title">Group Chats</div>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="message-item" onclick="openGroupChat('Nanjing', ['Dai Zijin', 'Zhu Yucheng', 'Hu Yuanfei', 'Zhou Jietong', 'Jin Yixuan'], ['https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7'])">
+                                <div class="group-avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Nanjing</div>
+                                        <div class="message-time">Yesterday</div>
+                                    </div>
+                                    <div class="message-text">Dai Zijin: I plan to visit Fuzimiao, Presidential Palace, and Zhongshan Mountain on the first day.</div>
+                                </div>
+                                <div class="unread-badge">5</div>
+                            </div>
+
+                            <div class="message-item" onclick="openGroupChat('F1', ['Dai Zijin', 'Zhu Yucheng', 'Hu Yuanfei', 'Zhou Jietong', 'Jin Yixuan'], ['https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7'])">
+                                <div class="group-avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">F1</div>
+                                        <div class="message-time">Today</div>
+                                    </div>
+                                    <div class="message-text">Jin Yixuan: I'm at Row 25 in Stand B1, where are you?</div>
+                                </div>
+                                <div class="unread-badge">8</div>
+                            </div>
+
+                            <div class="message-item" onclick="openGroupChat('Turner', ['Dai Zijin', 'Zhu Yucheng', 'Hu Yuanfei', 'Zhou Jietong', 'Jin Yixuan'], ['https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7', 'https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7'])">
+                                <div class="group-avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.jV9wirtvgl8qRzyhH2UeIQAAAA?w=211&h=211&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.nabN4n0KmxEMJFZKSzsk_gAAAA?w=186&h=186&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.HzMSZweVPDZDtOaW8OXMdwAAAA?w=176&h=180&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                    <img src="https://tse4-mm.cn.bing.net/th/id/OIP-C.frWkcyp9dyhGatPtvERWjgAAAA?w=199&h=199&c=7&r=0&o=5&dpr=2&pid=1.7" alt="User Avatar">
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-header">
+                                        <div class="message-name">Turner</div>
+                                        <div class="message-time">Today</div>
+                                    </div>
+                                    <div class="message-text">Hu Yuanfei: My art professor said Turner was a pinnacle figure in Post-Impressionism.</div>
+                                </div>
+                                <div class="unread-badge">4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Navigation Bar -->
+                <div class="bottom-nav">
+                    <a href="index.html" class="nav-item">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="约旅伴.html" class="nav-item">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>Travel</span>
+                    </a>
+                    <a href="消息.html" class="nav-item active">
+                        <i class="fas fa-comments nav-icon"></i>
+                        <span>Messages</span>
+                    </a>
+                    <a href="登录界面.html" class="nav-item">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-container" id="chatContainerEn">
+                <div class="chat-header">
+                    <div class="back-button" onclick="closeChat()">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <div class="chat-title" id="chatTitleEn">Chat</div>
+                    <div class="action-icons">
+                        <i class="fas fa-ellipsis-v action-icon"></i>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessagesEn">
+                    <!-- Chat messages will be added dynamically -->
+                </div>
+                <div class="chat-input">
+                    <div class="input-box">
+                        <input type="text" placeholder="Type a message..." id="messageInputEn">
+                        <div class="voice-button">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                    </div>
+                    <div class="plus-button" onclick="togglePlusMenuEn()">
+                        <i class="fas fa-plus"></i>
+                        <div class="plus-menu" id="plusMenuEn">
+                            <div class="plus-menu-item">
+                                <div class="plus-menu-icon"><i class="fas fa-image"></i></div>
+                                <div class="plus-menu-text">Photos</div>
+                            </div>
+                            <div class="plus-menu-item">
+                                <div class="plus-menu-icon"><i class="fas fa-file"></i></div>
+                                <div class="plus-menu-text">Files</div>
+                            </div>
+                            <div class="plus-menu-item">
+                                <div class="plus-menu-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div class="plus-menu-text">Location</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 折叠列表功能
+        function toggleCollapsible(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.collapsible-icon');
+            
+            content.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        // 默认展开第一个折叠列表
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstHeaders = document.querySelectorAll('.collapsible-header');
+            firstHeaders.forEach(header => {
+                if (header === firstHeaders[0] || header === firstHeaders[4]) {
+                    toggleCollapsible(header);
+                }
+            });
+        });
+
+        // 打开聊天界面
+        function openChat(name, avatar) {
+            const isEnglish = name.match(/[a-zA-Z]/);
+            const chatContainer = document.getElementById(isEnglish ? 'chatContainerEn' : 'chatContainer');
+            const chatTitle = document.getElementById(isEnglish ? 'chatTitleEn' : 'chatTitle');
+            const chatMessages = document.getElementById(isEnglish ? 'chatMessagesEn' : 'chatMessages');
+            
+            // 设置聊天标题
+            chatTitle.textContent = name;
+            
+            // 清空聊天消息
+            chatMessages.innerHTML = '';
+            
+            // 添加示例消息
+            const messages = [
+                { text: isEnglish ? `Hi, I'm ${name}, nice to meet you!` : `你好，我是${name}，很高兴认识你！`, time: '10:00', isSent: false },
+                { text: isEnglish ? 'Hello! Nice to meet you too!' : '你好！我也很高兴认识你！', time: '10:01', isSent: true },
+                { text: isEnglish ? 'Do you have any travel plans recently?' : '你最近有什么旅行计划吗？', time: '10:02', isSent: false },
+                { text: isEnglish ? "I'm planning to go to Zhangjiajie, would you like to join?" : '我计划去张家界，你有兴趣一起吗？', time: '10:03', isSent: true },
+                { text: isEnglish ? "Zhangjiajie? I was just thinking about going there! When are you leaving?" : '张家界？我正想去那里！什么时候出发？', time: '10:04', isSent: false },
+                { text: isEnglish ? "I'm planning to go early next month, haven't set the exact date yet." : '我打算下个月初去，具体日期还没定。', time: '10:05', isSent: true },
+                { text: isEnglish ? "Great! We can plan the itinerary together." : '太好了！我们可以一起规划行程。', time: '10:06', isSent: false }
+            ];
+            
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message-bubble ${message.isSent ? 'sent' : 'received'}`;
+                messageElement.innerHTML = `
+                    <div>${message.text}</div>
+                    <div class="message-time">${message.time}</div>
+                `;
+                chatMessages.appendChild(messageElement);
+            });
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 显示聊天界面
+            chatContainer.style.display = 'block';
+        }
+
+        // 打开群聊界面
+        function openGroupChat(name, members, avatars) {
+            const isEnglish = name.match(/[a-zA-Z]/);
+            const chatContainer = document.getElementById(isEnglish ? 'chatContainerEn' : 'chatContainer');
+            const chatTitle = document.getElementById(isEnglish ? 'chatTitleEn' : 'chatTitle');
+            const chatMessages = document.getElementById(isEnglish ? 'chatMessagesEn' : 'chatMessages');
+            
+            // 设置聊天标题
+            chatTitle.textContent = name;
+            
+            // 清空聊天消息
+            chatMessages.innerHTML = '';
+            
+            // 添加示例消息
+            const messages = [
+                { sender: members[0], text: isEnglish ? 'Hello everyone!' : '大家好！', time: '09:30', isSent: false },
+                { text: isEnglish ? 'Hi!' : '你好！', time: '09:31', isSent: true },
+                { sender: members[1], text: isEnglish ? "I'm here too!" : '我也来了！', time: '09:32', isSent: false },
+                { sender: members[2], text: isEnglish ? 'When should we meet?' : '我们什么时候集合？', time: '09:33', isSent: false },
+                { text: isEnglish ? 'I suggest meeting at the train station at 8 AM.' : '我建议早上8点在火车站集合。', time: '09:34', isSent: true },
+                { sender: members[3], text: isEnglish ? "That works for me." : '好的，我没问题。', time: '09:35', isSent: false },
+                { sender: members[0], text: isEnglish ? "I agree, let's do that!" : '我也同意，就这么定了！', time: '09:36', isSent: false }
+            ];
+            
+            messages.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message-bubble ${message.isSent ? 'sent' : 'received'}`;
+                
+                let messageContent = '';
+                if (message.sender) {
+                    messageContent = `<div><strong>${message.sender}:</strong> ${message.text}</div>`;
+                } else {
+                    messageContent = `<div>${message.text}</div>`;
+                }
+                
+                messageElement.innerHTML = `
+                    ${messageContent}
+                    <div class="message-time">${message.time}</div>
+                `;
+                chatMessages.appendChild(messageElement);
+            });
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 显示聊天界面
+            chatContainer.style.display = 'block';
+        }
+
+        // 关闭聊天界面
+        function closeChat() {
+            document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('chatContainerEn').style.display = 'none';
+        }
+
+        // 切换加号菜单
+        function togglePlusMenu() {
+            const plusMenu = document.getElementById('plusMenu');
+            plusMenu.classList.toggle('active');
+        }
+
+        function togglePlusMenuEn() {
+            const plusMenu = document.getElementById('plusMenuEn');
+            plusMenu.classList.toggle('active');
+        }
+
+        // 点击其他地方关闭加号菜单
+        document.addEventListener('click', function(event) {
+            const plusButtons = document.querySelectorAll('.plus-button');
+            const plusMenus = document.querySelectorAll('.plus-menu');
+            
+            plusButtons.forEach((button, index) => {
+                if (!button.contains(event.target) && plusMenus[index].classList.contains('active')) {
+                    plusMenus[index].classList.remove('active');
+                }
+            });
+        });
+
+        // 发送消息
+        document.querySelectorAll('#messageInput, #messageInputEn').forEach(input => {
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter' && this.value.trim() !== '') {
+                    const isEnglish = this.id === 'messageInputEn';
+                    const chatMessages = document.getElementById(isEnglish ? 'chatMessagesEn' : 'chatMessages');
+                    const messageElement = document.createElement('div');
+                    const now = new Date();
+                    const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    messageElement.className = 'message-bubble sent';
+                    messageElement.innerHTML = `
+                        <div>${this.value}</div>
+                        <div class="message-time">${time}</div>
+                    `;
+                    
+                    chatMessages.appendChild(messageElement);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    this.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

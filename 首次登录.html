@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首次登录 - Journey Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .screen-container {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        .screen-label {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #003554;
+        }
+
+        .screen-label.en {
+            color: #9A031E;
+        }
+
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 0 10px #333, 0 0 0 11px #666, 0 0 0 13px #999;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #7FB2F0, #5C8FE6);
+            transition: opacity 0.5s;
+        }
+
+        .slides-container {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-container {
+            margin-top: 60px;
+            margin-bottom: 40px;
+            width: 160px;
+            height: 160px;
+            position: relative;
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .welcome-text {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .welcome-text h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .welcome-text p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-height: calc(100% - 280px);
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-input:focus {
+            border-color: #7FB2F0;
+            box-shadow: 0 0 0 2px rgba(127, 178, 240, 0.2);
+            outline: none;
+        }
+
+        .gender-options {
+            display: flex;
+            gap: 12px;
+        }
+
+        .gender-option {
+            flex: 1;
+            height: 48px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .gender-option.selected {
+            background: #7FB2F0;
+            color: white;
+            border-color: #7FB2F0;
+        }
+
+        .progress-dots {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .next-button {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 48px);
+            height: 52px;
+            border: none;
+            border-radius: 26px;
+            background: white;
+            color: #7FB2F0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .next-button:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(127, 178, 240, 0.1);
+            color: #7FB2F0;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tag.selected {
+            background: #7FB2F0;
+            color: white;
+        }
+
+        .upload-area {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #7FB2F0;
+            background: rgba(127, 178, 240, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 24px;
+            color: #7FB2F0;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #003554;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        .nav-item.active {
+            color: #9A031E;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-container">
+        <div>
+            <div class="screen-label">中文版</div>
+            <div class="phone-container" id="cn-screen">
+                <div class="container">
+                    <div class="slides-container">
+                        <!-- 欢迎页 -->
+                        <div class="slide" style="transform: translateX(0%);">
+                            <div class="avatar-container">
+                                <img src="https://cdn.example.com/avatar.png" alt="Welcome" class="avatar-image">
+                            </div>
+                            <div class="welcome-text">
+                                <h1>欢迎加入JourneyConnect</h1>
+                                <p>在这里，找到志同道合的旅行伙伴<br>开启你的精彩旅程</p>
+                            </div>
+                        </div>
+
+                        <!-- 基础信息页 -->
+                        <div class="slide" style="transform: translateX(100%);">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label class="form-label">昵称</label>
+                                    <input type="text" class="form-input" placeholder="给自己起个好听的昵称吧">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">性别</label>
+                                    <div class="gender-options">
+                                        <div class="gender-option">
+                                            <i class="fas fa-mars"></i> 男生
+                                        </div>
+                                        <div class="gender-option">
+                                            <i class="fas fa-venus"></i> 女生
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">年龄</label>
+                                    <input type="number" class="form-input" placeholder="输入你的年龄">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">城市</label>
+                                    <input type="text" class="form-input" placeholder="你所在的城市">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 旅行偏好页 -->
+                        <div class="slide" style="transform: translateX(200%);">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label class="form-label">常去的地方</label>
+                                    <div class="tags-container">
+                                        <div class="tag">海边</div>
+                                        <div class="tag">山区</div>
+                                        <div class="tag">城市</div>
+                                        <div class="tag">乡村</div>
+                                        <div class="tag">古镇</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">想去的地方</label>
+                                    <input type="text" class="form-input" placeholder="输入你向往的目的地">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">旅行风格</label>
+                                    <div class="tags-container">
+                                        <div class="tag">文艺</div>
+                                        <div class="tag">探险</div>
+                                        <div class="tag">美食</div>
+                                        <div class="tag">购物</div>
+                                        <div class="tag">摄影</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">拼房接受度</label>
+                                    <div class="tags-container">
+                                        <div class="tag">可接受</div>
+                                        <div class="tag">仅同性</div>
+                                        <div class="tag">不接受</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-dots">
+                        <div class="dot active"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+
+                    <button class="next-button">下一步</button>
+
+                    <div class="bottom-nav">
+                        <a href="index.html" class="nav-item">
+                            <i class="fas fa-home nav-icon"></i>
+                            <span>主页</span>
+                        </a>
+                        <a href="约旅伴.html" class="nav-item">
+                            <i class="fas fa-users nav-icon"></i>
+                            <span>约旅伴</span>
+                        </a>
+                        <a href="消息.html" class="nav-item">
+                            <i class="fas fa-comments nav-icon"></i>
+                            <span>消息</span>
+                        </a>
+                        <a href="首次登录.html" class="nav-item active">
+                            <i class="fas fa-user nav-icon"></i>
+                            <span>个人</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="screen-label en">English Version</div>
+            <div class="phone-container" id="en-screen">
+                <div class="container">
+                    <div class="slides-container">
+                        <!-- Welcome Page -->
+                        <div class="slide" style="transform: translateX(0%);">
+                            <div class="avatar-container">
+                                <img src="https://cdn.example.com/avatar.png" alt="Welcome" class="avatar-image">
+                            </div>
+                            <div class="welcome-text">
+                                <h1>Welcome to JourneyConnect</h1>
+                                <p>Find like-minded travel companions here<br>Start your amazing journey</p>
+                            </div>
+                        </div>
+
+                        <!-- Basic Info Page -->
+                        <div class="slide" style="transform: translateX(100%);">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label class="form-label">Nickname</label>
+                                    <input type="text" class="form-input" placeholder="Choose a nice nickname">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Gender</label>
+                                    <div class="gender-options">
+                                        <div class="gender-option">
+                                            <i class="fas fa-mars"></i> Male
+                                        </div>
+                                        <div class="gender-option">
+                                            <i class="fas fa-venus"></i> Female
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Age</label>
+                                    <input type="number" class="form-input" placeholder="Enter your age">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-input" placeholder="Your city">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Travel Preferences Page -->
+                        <div class="slide" style="transform: translateX(200%);">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label class="form-label">Places You Often Visit</label>
+                                    <div class="tags-container">
+                                        <div class="tag">Beach</div>
+                                        <div class="tag">Mountains</div>
+                                        <div class="tag">City</div>
+                                        <div class="tag">Countryside</div>
+                                        <div class="tag">Ancient Town</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Places You Want to Visit</label>
+                                    <input type="text" class="form-input" placeholder="Enter your dream destination">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Travel Style</label>
+                                    <div class="tags-container">
+                                        <div class="tag">Cultural</div>
+                                        <div class="tag">Adventure</div>
+                                        <div class="tag">Food</div>
+                                        <div class="tag">Shopping</div>
+                                        <div class="tag">Photography</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Room Sharing Preference</label>
+                                    <div class="tags-container">
+                                        <div class="tag">Acceptable</div>
+                                        <div class="tag">Same Gender Only</div>
+                                        <div class="tag">Not Acceptable</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-dots">
+                        <div class="dot active"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+
+                    <button class="next-button">Next</button>
+
+                    <div class="bottom-nav">
+                        <a href="index.html" class="nav-item">
+                            <i class="fas fa-home nav-icon"></i>
+                            <span>Home</span>
+                        </a>
+                        <a href="约旅伴.html" class="nav-item">
+                            <i class="fas fa-users nav-icon"></i>
+                            <span>Find Travel Buddies</span>
+                        </a>
+                        <a href="消息.html" class="nav-item">
+                            <i class="fas fa-comments nav-icon"></i>
+                            <span>Messages</span>
+                        </a>
+                        <a href="首次登录.html" class="nav-item active">
+                            <i class="fas fa-user nav-icon"></i>
+                            <span>Profile</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('#cn-screen .slide');
+        const enSlides = document.querySelectorAll('#en-screen .slide');
+        const dots = document.querySelectorAll('#cn-screen .dot');
+        const enDots = document.querySelectorAll('#en-screen .dot');
+        const nextButton = document.querySelector('#cn-screen .next-button');
+        const enNextButton = document.querySelector('#en-screen .next-button');
+        const totalSlides = slides.length;
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.style.transform = `translateX(${(index - currentSlide) * 100}%)`;
+            });
+
+            enSlides.forEach((slide, index) => {
+                slide.style.transform = `translateX(${(index - currentSlide) * 100}%)`;
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+
+            enDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+
+            nextButton.textContent = currentSlide === totalSlides - 1 ? '开始探索' : '下一步';
+            enNextButton.textContent = currentSlide === totalSlides - 1 ? 'Start Exploring' : 'Next';
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 2000);
+        }
+
+        nextButton.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlides();
+            } else {
+                // 添加过渡动画效果
+                document.querySelector('#cn-screen .container').style.opacity = '0';
+                document.querySelector('#en-screen .container').style.opacity = '0';
+                setTimeout(() => {
+                    window.location.href = '登录界面.html';
+                }, 500);
+            }
+        });
+
+        enNextButton.addEventListener('click', () => {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlides();
+            } else {
+                // 添加过渡动画效果
+                document.querySelector('#cn-screen .container').style.opacity = '0';
+                document.querySelector('#en-screen .container').style.opacity = '0';
+                setTimeout(() => {
+                    window.location.href = '登录界面.html';
+                }, 500);
+            }
+        });
+
+        // 标签选择功能
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                tag.classList.toggle('selected');
+                
+                // 同步选择状态到另一个屏幕
+                const tagIndex = Array.from(tag.parentNode.children).indexOf(tag);
+                const isCnScreen = tag.closest('#cn-screen') !== null;
+                
+                if (isCnScreen) {
+                    const enTag = document.querySelectorAll('#en-screen .tag')[tagIndex];
+                    enTag.classList.toggle('selected', tag.classList.contains('selected'));
+                } else {
+                    const cnTag = document.querySelectorAll('#cn-screen .tag')[tagIndex];
+                    cnTag.classList.toggle('selected', tag.classList.contains('selected'));
+                }
+            });
+        });
+
+        // 性别选择功能
+        document.querySelectorAll('.gender-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const isCnScreen = option.closest('#cn-screen') !== null;
+                const options = isCnScreen ? 
+                    document.querySelectorAll('#cn-screen .gender-option') : 
+                    document.querySelectorAll('#en-screen .gender-option');
+                
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                
+                // 同步选择状态到另一个屏幕
+                const optionIndex = Array.from(options).indexOf(option);
+                const otherOptions = isCnScreen ? 
+                    document.querySelectorAll('#en-screen .gender-option') : 
+                    document.querySelectorAll('#cn-screen .gender-option');
+                
+                otherOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                otherOptions[optionIndex].classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
